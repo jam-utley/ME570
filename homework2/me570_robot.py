@@ -5,7 +5,7 @@ Class for a simple 2-D robot with two links
 import numpy as np
 from matplotlib import pyplot as plt
 
-from me570_geometry import Polygon
+from me570_geometry import Polygon, rot2d
 
 
 def polygons_add_x_reflection(vertices):
@@ -49,12 +49,12 @@ class TwoLink:
         B2_p = np.array([[5], [0]])
         polygon1, polygon2 = polygons
         theta1, theta2 = np.asarray(theta).flatten()
-        rot_B2_to_B1 = Polygon.rot2d(theta2)
-        rot_B1_to_W = Polygon.rot2d(theta1)
+        rot_B2_to_B1 = rot2d(theta2)
+        rot_B1_to_W = rot2d(theta1)
         # Perform the transform
         vertex_effector_transf = rot_B1_to_W @ (rot_B2_to_B1 @ B2_p + T_B1_B2)
         polygon1_transf = Polygon(rot_B1_to_W @ polygon1.vertices)
-        polygon2_transf = Polygon(rot_B1_to_W @ (rot_B2_to_B1 @ 
+        polygon2_transf = Polygon(rot_B1_to_W @ (rot_B2_to_B1 @
                                                  polygon2.vertices + T_B1_B2))
         return vertex_effector_transf, polygon1_transf, polygon2_transf
 
@@ -109,5 +109,5 @@ class TwoLink:
                 self.plot(theta[:,i], 'red')
             else:
                 self.plot(theta[:,i], 'green')
-        plt.plot(points[0], points[1], color='black', marker='*', 
+        plt.plot(points[0], points[1], color='black', marker='*',
                  linestyle='none')

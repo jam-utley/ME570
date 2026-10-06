@@ -29,10 +29,10 @@ def twolink_grid_sample(nb_samples_theta):
     grid_theta = np.linspace(0, 2*np.pi, nb_samples_theta)
     #grid_eval assess angles _1,_2 from grid_theta, tests if in collision
     grid_eval = np.zeros((nb_samples_theta, nb_samples_theta),dtype=bool)
-    for i, theta_1 in grid_theta:
-        for j, theta_2 in grid_theta:
+    for i, theta_1 in enumerate(grid_theta):
+        for j, theta_2 in enumerate(grid_theta):
             theta_array = np.array([[theta_1],[theta_2]])
-            grid_eval[i,j] = TwoLink.is_collision(TwoLink.self, theta_array,
+            grid_eval[i,j] = TwoLink.is_collision(theta_array,
                                                   obstacle_points)
             #J NOTE: I feel that may need to iterate through obstacle
             #points but may handle like MATLAB so idk
