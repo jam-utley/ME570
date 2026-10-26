@@ -12,6 +12,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 import me570_geometry
+import me570_pq
 
 
 def graph_test_data_load(variable_name):
@@ -289,6 +290,7 @@ class Graph:
         idx = np.argpartition(distances_squared, k_nearest)
         return idx[:k_nearest]
 
+
     def heuristic(self, idx_x, idx_goal):
         """
         Computes the heuristic h given by the Euclidean distance between the
@@ -297,24 +299,64 @@ class Graph:
         #pass  # Substitute with your code
         # This doesn't feel like it will actually compute properly if idx_x 
         # and idx_goal are just integers
-        h_val = np.sqrt((idx_goal[0]-idx_x[0])**2 + (idx_goal[1]-idx_x[1])**2)
+        #h_val = np.sqrt((idx_goal[0]-idx_x[0])**2 + (idx_goal[1]-idx_x[1])**2)
+
+        #Turns out it didn't work... after playing with the graph class for a
+        #while here is it working:
+
+        x_node = self.graph_vector[idx_x]['x']
+        x_goal = self.graph_vector[idx_goal]['x']
+        h_val = np.linalg.norm(x_goal-x_node)
+
         return h_val
 
     def get_expand_list(self, idx_n_best, idx_closed):
         """
-        Finds the neighbors of element   idx_n_best that are not in   idx_closed
-        (line  it:expand in Algorithm~ alg:astar).
+        Finds the neighbors of element idx_n_best that are not in idx_closed
+        (line it:expand in Algorithm~ alg:astar).
         """
-        pass  # Substitute with your code
+        #pass  # Substitute with your code
+        # Question 1.2 CODE
+        # Reference pseudo-code: Algorithm 1, line 11
+        # Find nearest neighbors of idx_n_best that are NOT in idx_closed
+        # idx_expand = array of indices of the neighbors of element idx_n_best
+        # in graph_vector
+
+        #Get neighbors of idx_n_best
+        neighbors = [idx_n_best-1, idx_n_best-2, idx_n_best-3, idx_n_best-4,
+                     idx_n_best+1, idx_n_best+2, idx_n_best+3, idx_n_best+4]
+        #idx_expand are indexes of neighbors NOT in closed list
+        idx_expand = neighbors.difference(idx_closed)
         return idx_expand
 
     def expand_element(self, idx_n_best, idx_x, idx_goal, pq_open):
         """
-        This function expands the vertex with index   idx_x (which is a neighbor
+        This function expands the vertex with index idx_x (which is a neighbor
         of the one with index   idx_n_best) and updates the attribute
         graph_vector and returns an updated version of   pq_open.
         """
-        pass  # Substitute with your code
+        #pass  # Substitute with your code
+        # Question 1.3
+        # This is GHASLTY. Come back and fix
+        # if idx_x is not in pq_open:
+        if pq_open.is_member(self, idx_x) == False:
+            # Set Backpointer cost
+            # (g(idx_x)=g(idx_n_best)+c((idx_n_best,idx_x)))
+            #MY c(.) IS WRONG, JUST A PLACEHOLDER COME BACK AND FIX
+            self.backbointers[idx_x]=self.backpointers(idx_n_best) + 1 + idx_x
+            # set backpointer of x to n_best
+            self.backpointers[idx_n_best] = self.backpointers[idx_x]
+            # compute heuristic h(idx_x)
+            heuristic = Graph.heuristic(self, idx_x, idx_goal)
+            # add f(x) = g(idx_x) + h(idx_x) to pq_open
+            f_of_x = self.backpointers[idx_n_best] + heuristic
+        # else if g(idx_n_best)+c(idx_n_best,idx_x)<g(idx_x):
+        elif (self.backpointers[idx_n_best]+1 < self.backpointers[idx_x]):
+            # update backpointer cost
+            # g(idx_x) = g(idx_n_best)+c(idx_n_best,idx_x)
+            self.backpointers[idx_x] = self.backpointers[idx_n_best] + 1 #AGAIN FIX C
+            # update backpointer of idx_x to idx_n_best
+            self.backpointers[idx_n_best] = self.backpointers[idx_x]
         return pq_open
 
     def path(self, idx_start, idx_goal):
@@ -324,7 +366,19 @@ class Graph:
         returns the  coordinates (not indexes) of the sequence of traversed
         elements.
         """
-        pass  # Substitute with your code
+        #pass  # Substitute with your code
+        # Question 1.4
+        # x_path is 2 x nb_path array
+        # Each row contains the COORDINATES of a points from goal to start
+        # In reverse order.
+        # x_path[:,0]=graph_vector[idx_start]['x']
+        # x_path[:,-1] = graph_vector[idx_goal]['x']
+        # Will have to use some 'self' stored variables to access backpointers
+        x_path = [[]]
+        for i in range(1,len(self.backpointers)+1):
+            # This is wrong. Come back and change later.
+            x_path[-i] = [self.backpointers[-i]['x'],
+                          self.backpointers[-i]['y']]
         return x_path
 
     def search(self, idx_start, idx_goal):
@@ -332,7 +386,39 @@ class Graph:
         Implements the  A^* algorithm, as described by the pseudo-code in
         Algorithm~ alg:astar.
         """
-        pass  # Substitute with your code
+        # pass  # Substitute with your code
+        # Question 1.5
+        # Required elements: pq_open, idx_closed
+
+        # Structure -
+
+        # Initialization
+        # Add idx_start to pq_open, backpointer cost = 0 (bc at the start)
+        # Initialize idx_closed to be empty
+        pq_open = me570_pq.PriorityQueue()
+        pq_open.push(idx_start, 0)
+        self.backpointers = [0]
+        self.idx_closed = []
+        
+        # Loop
+        while pq_open.is_empty != True:
+            # Pick idx_n_best from pq_open 
+                #s.t. f(idx_n_best) is smallest in pq_open
+            idx_n_best = pq_open.pop() #gets smallest pq_open
+            # Remove idx_n_best from pq_open and append it to idx_closed
+            if idx_n_best == idx_goal:
+                # plot a course from start to goal using backpointers
+                x_path = Graph.path(idx_start, idx_goal)
+            # Get neighbors
+            idx_expand = Graph.get_expand_list(self,
+                                               idx_n_best,
+                                               self.idx_closed)
+            # Expand the list
+            for idx_x in idx_expand:
+                pq_open = Graph.expand_element(idx_n_best, idx_x, idx_goal, pq_open)
+        # When pq_open is empty, it will have gone through all possible routes
+        # The best possible route is stored in self.backpointers
+        x_path = Graph.path(idx_start, idx_goal)
         return x_path
 
 
