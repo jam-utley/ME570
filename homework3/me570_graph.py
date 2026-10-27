@@ -76,7 +76,8 @@ def plot_text(coord, str_label, color=(1., 1., 1.)):
 
 class Graph:
     """
-    A class collecting a  graph_vector data structure and all the functions that operate on a graph.
+    A class collecting a  graph_vector data structure and all the functions
+    that operate on a graph.
     """
 
     def __init__(self, graph_vector):
@@ -296,14 +297,6 @@ class Graph:
         Computes the heuristic h given by the Euclidean distance between the
         nodes with indexes idx_x and   idx_goal.
         """
-        #pass  # Substitute with your code
-        # This doesn't feel like it will actually compute properly if idx_x 
-        # and idx_goal are just integers
-        #h_val = np.sqrt((idx_goal[0]-idx_x[0])**2 + (idx_goal[1]-idx_x[1])**2)
-
-        #Turns out it didn't work... after playing with the graph class for a
-        #while here is it working:
-
         x_node = self.graph_vector[idx_x]['x']
         x_goal = self.graph_vector[idx_goal]['x']
         h_val = np.linalg.norm(x_goal-x_node)
@@ -355,10 +348,13 @@ class Graph:
         elif (n_best['g'] + cost < self.graph_vector[idx_x]['g']):
             # update backpointer cost
             # g(idx_x) = g(idx_n_best)+c(idx_n_best,idx_x)
-            self.graph_vector[idx_x]['g'] = self.graph_vector[idx_n_best]['g']
-            + self.graph_vector[idx_x]['neighbors_cost']
+            self.graph_vector[idx_x]['g']=(self.graph_vector[idx_n_best]['g']
+                                           + cost)
             # update backpointer of idx_x to idx_n_best
-            self.graph_vector[idx_x]['g'] = n_best['g']+cost
+
+            self.graph_vector[idx_x]['backpointer'] = idx_n_best
+            pq_open.push(idx_x, self.graph_vector[idx_x]['g']
+                         + self.heuristic(idx_x, idx_goal))
         return pq_open
 
     def path(self, idx_start, idx_goal):
@@ -376,15 +372,17 @@ class Graph:
         # x_path[:,0]=graph_vector[idx_start]['x']
         # x_path[:,-1] = graph_vector[idx_goal]['x']
         # Will have to use some 'self' stored variables to access backpointers
-        x_path = []
-        idx = self.graph_vector[idx_goal]['x']
+        #x_path = []
+        idx = idx_goal
         backpointer = self.graph_vector[idx_goal]['backpointer']
-        cost = self.graph_vector[idx_goal]['g']
-        x_path.append((idx, cost))
+        #cost = self.graph_vector[idx_goal]['g']
+        x_list = [self.graph_vector[idx]['x']]
+        #x_path.append((idx, cost))
         while idx != idx_start:
-            idx = self.graph_vector[backpointer]['x']
+            idx = self.graph_vector[idx]['backpointer']
             backpointer = self.graph_vector[backpointer]['backpointer']
-            x_path.append((idx,cost))
+            x_list.append(self.graph_vector[idx]['x'])
+        x_path = np.hstack(x_list[::-1])
         return x_path
 
     def search(self, idx_start, idx_goal):
@@ -401,34 +399,35 @@ class Graph:
         # Initialization
         # Add idx_start to pq_open, backpointer cost = 0 (bc at the start)
         # Initialize idx_closed to be empty
+        self.graph_vector[idx_start]['backpointer'] = None
+        self.graph_vector[idx_start]['g'] = 0
         pq_open = me570_pq.PriorityQueue()
-        pq_open.push(idx_start, 0)
-        self.graph_vector[idx_start]['backpointer']=0
+        pq_open.push(idx_start, self.heuristic(idx_start, idx_goal)) # f=g+h
         idx_closed = []
         
         # Loop
-        while pq_open.is_empty() != True:
+        while not pq_open.is_empty():
             # Pick idx_n_best from pq_open 
                 #s.t. f(idx_n_best) is smallest in pq_open
             #.pop() gives (key,value)
-            idx_n_best, idx_n_best_cost = pq_open.pop() #gets smallest pq_open
+            idx_n_best, _ = pq_open.pop() #gets smallest pq_open
             # Remove idx_n_best from pq_open and append it to idx_closed
+            if idx_n_best in idx_closed:
+                continue
+            idx_closed.append(idx_n_best)
+
             if idx_n_best == idx_goal:
                 # plot a course from start to goal using backpointers
                 x_path = Graph.path(self, idx_start, idx_goal)
+                return x_path
             # Get neighbors
-            idx_expand = Graph.get_expand_list(self,
-                                               idx_n_best,
-                                               idx_closed)
             # Expand the list
-            for idx_x in idx_expand:
-                pq_open = Graph.expand_element(self,
-                                               idx_n_best,
-                                               idx_x,
-                                               idx_goal,
-                                               pq_open)
-        # When pq_open is empty, it will have gone through all possible routes
-        x_path = Graph.path(self, idx_start, idx_goal)
+            for idx_x in self.get_expand_list(idx_n_best, idx_closed):
+                pq_open = self.expand_element(idx_n_best, idx_x, idx_goal,
+                                              pq_open)
+        # If pq_opens runs out of options, then no path exists
+        self.idx_closed = idx_closed
+        x_path = np.zeros((2, 0))
         return x_path
 
 

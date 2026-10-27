@@ -1,6 +1,6 @@
 import me570_graph
 import numpy as np
-import matplotlib as plt
+import matplotlib.pyplot as plt
 
 def graph_search_test():
     """
@@ -13,15 +13,18 @@ def graph_search_test():
     # Question 1.1 REPORT
     graph = me570_graph.graph_test_data_load('graphVectorMedium')
     # loader may return raw data or a Graph
-    if not isinstance(graph, me570_graph.Graph):  
+    if not isinstance(graph, me570_graph.Graph):
         graph = me570_graph.Graph(graph)
     
     # Node coordinates as an (N, 2) array
-    coords = np.array([np.asarray(v['x']).flatten() for v in graph.graph_vector])
+    coords = np.array([np.asarray(v['x'])
+                       .flatten() for v in graph.graph_vector])
     
     # Bottom-left / top-right = nodes nearest the bounding-box corners
-    idx_start = int(np.argmin(np.linalg.norm(coords - coords.min(axis=0), axis=1)))
-    idx_goal = int(np.argmin(np.linalg.norm(coords - coords.max(axis=0), axis=1)))
+    idx_start = int(np.argmin(np.linalg.norm(coords - coords.min(axis=0),
+                                             axis=1)))
+    idx_goal = int(np.argmin(np.linalg.norm(coords - coords.max(axis=0),
+                                            axis=1)))
     
     # ASSUMED signature -- adjust to match your graph_search
     x_path = graph.search(idx_start, idx_goal)

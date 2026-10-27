@@ -55,6 +55,7 @@ points using a grid discretization and  A^*.
         # Question 2.1
         # Use method Graph.search to search for
         # a path in the graph stored in graph
+        theta_path = Graph.search(self, theta_start, theta_goal)
         return theta_path
 
 
