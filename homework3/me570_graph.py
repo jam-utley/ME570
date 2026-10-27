@@ -12,7 +12,6 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 import me570_geometry
-import me570_pq
 
 
 def graph_test_data_load(variable_name):
@@ -35,10 +34,11 @@ def graph_test_data_plot():
 
     for name, idx_goal in [('graphVector_solved', 3),
                            ('graphVectorMedium_solved', 14)]:
-        graph = Graph(graph_test_data_load(name))
+        graph = graph_test_data_load(name)
         plt.figure()
         graph.plot(flag_heuristic=True, idx_goal=idx_goal)
         plt.title(name)
+        plt.show()
 
 
 def plot_arrows_from_list(arrow_list, scale=1.0, color=(0., 0., 0.)):
@@ -83,6 +83,8 @@ class Graph:
         """
         Stores the arguments as internal attributes.
         """
+        assert not isinstance(graph_vector, Graph), \
+            'graph_vector is already a Graph: wrapped twice'
         self.graph_vector = graph_vector
         self.idx_closed = []
 
@@ -290,7 +292,6 @@ class Graph:
         idx = np.argpartition(distances_squared, k_nearest)
         return idx[:k_nearest]
 
-
     def heuristic(self, idx_x, idx_goal):
         """
         Computes the heuristic h given by the Euclidean distance between the
@@ -312,53 +313,19 @@ class Graph:
 
     def get_expand_list(self, idx_n_best, idx_closed):
         """
-        Finds the neighbors of element idx_n_best that are not in idx_closed
-        (line it:expand in Algorithm~ alg:astar).
+        Finds the neighbors of element   idx_n_best that are not in   idx_closed
+        (line  it:expand in Algorithm~ alg:astar).
         """
-        #pass  # Substitute with your code
-        # Question 1.2 CODE
-        # Reference pseudo-code: Algorithm 1, line 11
-        # Find nearest neighbors of idx_n_best that are NOT in idx_closed
-        # idx_expand = array of indices of the neighbors of element idx_n_best
-        # in graph_vector
-
-        #Get neighbors of idx_n_best
-        neighbors = self.graph_vector[idx_n_best]['neighbors']
-        #idx_expand are indexes of neighbors NOT in closed list
-        idx_expand = [i for i in neighbors if i not in idx_closed]
+        pass  # Substitute with your code
         return idx_expand
 
     def expand_element(self, idx_n_best, idx_x, idx_goal, pq_open):
         """
-        This function expands the vertex with index idx_x (which is a neighbor
+        This function expands the vertex with index   idx_x (which is a neighbor
         of the one with index   idx_n_best) and updates the attribute
         graph_vector and returns an updated version of   pq_open.
         """
-        #pass  # Substitute with your code
-        # Question 1.3
-        # if idx_x is not in pq_open:
-        n_best = self.graph_vector[idx_n_best]
-        pos = list(n_best['neighbors']).index(idx_x)
-        cost = n_best['neighbors_cost'][pos]
-        if pq_open.is_member(idx_x) == False:
-            # Set Backpointer cost
-            # (g(idx_x)=g(idx_n_best)+c((idx_n_best,idx_x)))
-            self.graph_vector[idx_x]['g'] = n_best['g'] + cost
-            # set backpointer of x to n_best
-            self.graph_vector[idx_x]['backpointer'] = idx_n_best
-            # compute heuristic h(idx_x)
-            heuristic = Graph.heuristic(self, idx_x, idx_goal)
-            # add f(x) = g(idx_x) + h(idx_x) to pq_open
-            f_of_x = self.graph_vector[idx_x]['g'] + heuristic
-            pq_open.push(idx_x, f_of_x)
-        # else if g(idx_n_best)+c(idx_n_best,idx_x)<g(idx_x):
-        elif (n_best['g'] + cost < self.graph_vector[idx_x]['g']):
-            # update backpointer cost
-            # g(idx_x) = g(idx_n_best)+c(idx_n_best,idx_x)
-            self.graph_vector[idx_x]['g'] = self.graph_vector[idx_n_best]['g']
-            + self.graph_vector[idx_x]['neighbors_cost']
-            # update backpointer of idx_x to idx_n_best
-            self.graph_vector[idx_x]['g'] = n_best['g']+cost
+        pass  # Substitute with your code
         return pq_open
 
     def path(self, idx_start, idx_goal):
@@ -368,23 +335,7 @@ class Graph:
         returns the  coordinates (not indexes) of the sequence of traversed
         elements.
         """
-        #pass  # Substitute with your code
-        # Question 1.4
-        # x_path is 2 x nb_path array
-        # Each row contains the COORDINATES of a points from goal to start
-        # In reverse order.
-        # x_path[:,0]=graph_vector[idx_start]['x']
-        # x_path[:,-1] = graph_vector[idx_goal]['x']
-        # Will have to use some 'self' stored variables to access backpointers
-        x_path = []
-        idx = self.graph_vector[idx_goal]['x']
-        backpointer = self.graph_vector[idx_goal]['backpointer']
-        cost = self.graph_vector[idx_goal]['g']
-        x_path.append((idx, cost))
-        while idx != idx_start:
-            idx = self.graph_vector[backpointer]['x']
-            backpointer = self.graph_vector[backpointer]['backpointer']
-            x_path.append((idx,cost))
+        pass  # Substitute with your code
         return x_path
 
     def search(self, idx_start, idx_goal):
@@ -392,53 +343,17 @@ class Graph:
         Implements the  A^* algorithm, as described by the pseudo-code in
         Algorithm~ alg:astar.
         """
-        # pass  # Substitute with your code
-        # Question 1.5
-        # Required elements: pq_open, idx_closed
-
-        # Structure -
-
-        # Initialization
-        # Add idx_start to pq_open, backpointer cost = 0 (bc at the start)
-        # Initialize idx_closed to be empty
-        pq_open = me570_pq.PriorityQueue()
-        pq_open.push(idx_start, 0)
-        self.graph_vector[idx_start]['backpointer']=0
-        idx_closed = []
-        
-        # Loop
-        while pq_open.is_empty() != True:
-            # Pick idx_n_best from pq_open 
-                #s.t. f(idx_n_best) is smallest in pq_open
-            #.pop() gives (key,value)
-            idx_n_best, idx_n_best_cost = pq_open.pop() #gets smallest pq_open
-            # Remove idx_n_best from pq_open and append it to idx_closed
-            if idx_n_best == idx_goal:
-                # plot a course from start to goal using backpointers
-                x_path = Graph.path(self, idx_start, idx_goal)
-            # Get neighbors
-            idx_expand = Graph.get_expand_list(self,
-                                               idx_n_best,
-                                               idx_closed)
-            # Expand the list
-            for idx_x in idx_expand:
-                pq_open = Graph.expand_element(self,
-                                               idx_n_best,
-                                               idx_x,
-                                               idx_goal,
-                                               pq_open)
-        # When pq_open is empty, it will have gone through all possible routes
-        x_path = Graph.path(self, idx_start, idx_goal)
+        pass  # Substitute with your code
         return x_path
 
 
-def graph_test_data_plot():
-    """
-    Plot two solved graphs
-    """
-    for name, idx_goal in [('graphVector_solved', 3),
-                           ('graphVectorMedium_solved', 14)]:
-        graph = Graph(graph_test_data_load(name))
-        plt.figure()
-        graph.plot(flag_heuristic=True, idx_goal=idx_goal)
-        plt.title(name)
+#def graph_test_data_plot():
+#    """
+#    Plot two solved graphs
+#    """
+#    for name, idx_goal in [('graphVector_solved', 3),
+#                           ('graphVectorMedium_solved', 14)]:
+#        graph = Graph(graph_test_data_load(name))
+#        plt.figure()
+#        graph.plot(flag_heuristic=True, idx_goal=idx_goal)
+#        plt.title(name)

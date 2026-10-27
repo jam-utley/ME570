@@ -1,3 +1,9 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Oct 19 16:13:03 2026
+
+@author: Owner
+"""
 import me570_pq
 groceries=[(2,'Bananas'),(3,'Cantelope'),(1,'Apples')]
 
@@ -15,3 +21,4 @@ for item in groceries:
 while priority_queue.is_empty()!=True:
     ascending_value = priority_queue.pop()
     print(f"Priority Queue: {ascending_value}")
+
