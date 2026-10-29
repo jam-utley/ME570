@@ -1,7 +1,6 @@
 """
 Define a PriorityQueue class wrapper around the heapq module
 """
-
 import heapq as pq
 
 

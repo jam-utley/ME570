@@ -1,9 +1,12 @@
-import pickle
+"""
+Docstring so pylinter doesn't yell at me
+"""
 import numpy as np
 from me570_graph import Graph
 from matplotlib import pyplot as plt
 from matplotlib import colors as mcolors
 from me570_geometry import Polygon, rot2d
+import pickle
 
 
 def polygons_add_x_reflection(vertices):
@@ -36,7 +39,7 @@ points using a grid discretization and  A^*.
     """
 
     def __init__(self):
-        self.graph = Graph()
+        self.graph = Graph(None)
 
     def load_free_space_graph(self):
         """
@@ -55,7 +58,10 @@ points using a grid discretization and  A^*.
         # Question 2.1
         # Use method Graph.search to search for
         # a path in the graph stored in graph
-        theta_path = Graph.search(self, theta_start, theta_goal)
+        #theta_path = Graph.search(self, theta_start, theta_goal)
+        idx_start = self.graph.nearest_neighbors(theta_start, 1)[0]
+        idx_goal = self.graph.nearest_neighbors(theta_goal, 1)[0]
+        theta_path = self.graph.search(idx_start, idx_goal)
         return theta_path
 
 

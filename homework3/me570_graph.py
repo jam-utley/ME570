@@ -1,18 +1,12 @@
 """
-Please merge the class and function with the me570_graph.py file from previous assignments.
-"""
-'''
 Class and test data for graphs
-'''
-
-import pickle
+"""
 from math import isnan, pi
-
 import numpy as np
 from matplotlib import pyplot as plt
-
 import me570_geometry
 import me570_pq
+import pickle
 
 
 def graph_test_data_load(variable_name):
@@ -281,17 +275,6 @@ class Graph:
         idx = np.argpartition(distances_squared, k_nearest)
         return idx[:k_nearest]
 
-    def nearest_neighbors(self, x_query, k_nearest):
-        """
-        Returns the k nearest neighbors in the graph for a given point.
-        """
-
-        x_graph = np.hstack([n['x'] for n in self.graph_vector])
-        distances_squared = np.sum((x_graph - x_query)**2, 0)
-        idx = np.argpartition(distances_squared, k_nearest)
-        return idx[:k_nearest]
-
-
     def heuristic(self, idx_x, idx_goal):
         """
         Computes the heuristic h given by the Euclidean distance between the
@@ -333,7 +316,7 @@ class Graph:
         n_best = self.graph_vector[idx_n_best]
         pos = list(n_best['neighbors']).index(idx_x)
         cost = n_best['neighbors_cost'][pos]
-        if pq_open.is_member(idx_x) == False:
+        if pq_open.is_member(idx_x) is not True:
             # Set Backpointer cost
             # (g(idx_x)=g(idx_n_best)+c((idx_n_best,idx_x)))
             self.graph_vector[idx_x]['g'] = n_best['g'] + cost
@@ -404,10 +387,10 @@ class Graph:
         pq_open = me570_pq.PriorityQueue()
         pq_open.push(idx_start, self.heuristic(idx_start, idx_goal)) # f=g+h
         idx_closed = []
-        
+
         # Loop
         while not pq_open.is_empty():
-            # Pick idx_n_best from pq_open 
+            # Pick idx_n_best from pq_open
                 #s.t. f(idx_n_best) is smallest in pq_open
             #.pop() gives (key,value)
             idx_n_best, _ = pq_open.pop() #gets smallest pq_open
@@ -429,15 +412,3 @@ class Graph:
         self.idx_closed = idx_closed
         x_path = np.zeros((2, 0))
         return x_path
-
-
-def graph_test_data_plot():
-    """
-    Plot two solved graphs
-    """
-    for name, idx_goal in [('graphVector_solved', 3),
-                           ('graphVectorMedium_solved', 14)]:
-        graph = Graph(graph_test_data_load(name))
-        plt.figure()
-        graph.plot(flag_heuristic=True, idx_goal=idx_goal)
-        plt.title(name)
