@@ -315,5 +315,15 @@ class Sphere:
         Computes the signed distance between points and the sphere, while taking
         into account whether the sphere is hollow or filled in.
         """
-        pass  # Substitute with your code
+        #pass  # Substitute with your code
+        d_points_sphere = []
+        for i in range(len(points)):
+            x_point = points[i,0]
+            y_point = points[i,1]
+            x_center = self.center[0]
+            y_center = self.center[1]
+            distance = math.sqrt((x_point-x_center)^2+(y_point-y_center)^2)
+            if self.radius < 0:
+                distance = distance * (-1)
+            d_points_sphere.append(distance)
         return d_points_sphere

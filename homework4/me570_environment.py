@@ -130,7 +130,21 @@ class SphereWorld:
         function Sphere.distance from Homework 3 on each one of them, and then
         combining the results.
         """
-        pass  # Substitute with your code
+        #Pass  # Substitute with your code
+        #Iterate over all spheres
+        flag = []
+        for sphere in self.world:
+            center = sphere[0]
+            radius = sphere[1]
+            distance_influence = sphere[2]
+            #Calculate distances to each sphere's center
+            distance = me570_geometry.Sphere(center, radius, distance_influence)
+            #If distance < positive radius, collision
+            #If distance > negative radius's magnitude, collision, flag=True
+            if (distance < radius and 0 < radius) or (distance > radius and 0 > radius):
+                flag.append(True)
+            else:
+                flag.append(False)
         return flag
 
     def sample(self):
@@ -139,5 +153,20 @@ class SphereWorld:
         Sphereworld.is_collision returns   false for a sample, or a maximum
         number of trials   nb_trials is reached.
         """
-        pass  # Substitute with your code
+        #pass  # Substitute with your code
+        nb_trials = 1000
+        mu = [0,0]
+        size = 10
+        # Generate samples randomly from a uniform distribution until a
+        # collision is registered from a sphere and the sample
+        for i in range(nb_trials):
+            # generate sample
+            rng = np.random.default_rng(seed=42)
+            x_sample = (rng.uniform(mu[0]-size/2, mu[0]+size/2, size = 1),
+                        rng.uniform(mu[1]-size/2, mu[1]+size/2, size = 1))
+            # Test sample's collision
+            collision_flag = SphereWorld().is_collision(x_sample)
+            # If collision, break and return x_sample
+            if True in collision_flag:
+                break
         return x_sample
