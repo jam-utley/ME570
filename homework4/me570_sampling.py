@@ -1,3 +1,8 @@
+import me570_graph
+import math
+import numpy as np
+from matplotlib import pyplot as plt
+
 class Rrt:
     """
     A class functions that implement an improved RRT sampling-based planner.
@@ -8,53 +13,69 @@ class Rrt:
         attribute   graph of class   Graph containing a single node at
         x_start.
         """
-        pass  # Substitute with your code
+        self.world = world
+        self.x_start = x_start
+        self.graph = me570_graph.Graph.__init__(self, x_start)
+        #pass  # Substitute with your code
         
     
-    def local_planner_steer(self,x_near,x_sample,{}max_dist{}):
+    def local_planner_steer(self,x_near,x_sample,max_dist):
         """
-        Generate a new point   x_steer by moving an incremental distance
-        max_dist from   x_near in the direction of   x_sample. If the distance
-        between   x_near and   x_sample is less than   max_dist, then
+        Generate a new point x_steer by moving an incremental distance
+        max_dist from x_near in the direction of x_sample. If the distance
+        between x_near and x_sample is less than max_dist, then
         x_steer=x_sample.
         """
-        pass  # Substitute with your code
+        #pass  # Substitute with your code
+        # if distance to goal < max_distm then x_steer = x_sample
+        # otherwise: x_steer = x_near + max_dist * (x_sample-x_near)/d
         return x_steer
     
-    def local_planner_is_collision(self,{}x_edge1{},{}x_edge2{},{}max_dist_edge_check{}):
+    def local_planner_is_collision(self,
+                                   x_edge1,
+                                   x_edge2, 
+                                   max_dist_edge_check):
         """
-        Generates   nb_points equispaced points on the line between   x_edge1
-        and   x_edge2, such that the maximum distance between two consecutive
-        samples is less than   max_dist_edge_check. Note that the value of
+        Generates nb_points equispaced points on the line between x_edge1
+        and x_edge2, such that the maximum distance between two consecutive
+        samples is less than max_dist_edge_check. Note that the value of
         nb_points is determined by the distance between the two points and
         max_dist_edge_check.
         """
-        pass  # Substitute with your code
+        #pass  # Substitute with your code
+        flag = []
+        # generate points via np.linspace
+        # step through each point and do a collision check 
+        # (potentially sphere collision?)
+        # append collision check result to flag
+        
         return flag
     
     def extend(self):
         """
         The function performs the following steps:
          - it:sampleState Use world.sample to generate a collision-free sample
-        location   x_sample; ensure that the parameter   size is large enough to
+        location   x_sample;
+        ensure that the parameter size is large enough to
         cover the entire space.
-         - Use graph.nearest_neighbors (with   k_neighbors=1) to find the index
-         idx_near of the single closest neighbor of   x_sample. Assign the
+         - Use graph.nearest_neighbors (with  k_neighbors=1) to find the index
+        idx_near of the single closest neighbor of   x_sample. Assign the
         coordinates corresponding to   idx_near to a variable   x_near.
          - Use local_planner_steer to generate   x_steer from   x_near,
         x_sample.
          - Use local_planner_is_collision to check whether   x_near can be
         connected to   x_steer. If there is no collision, add   x_steer to
-        graph.graph_vector, setting its backpointer to   idx_near, and updating
+        graph.graph_vector, setting its backpointer to idx_near, and updating
         the   neighbor and   neighbor_cost fields of
         self.graph.graph_vector[idx_near].
-         - Repeat from  it:sampleState until a sample is successfully added, or
+         - Repeat from it:sampleState until a sample is successfully added, or
         up to 100 times.
         """
-        pass  # Substitute with your code
-        return {}x_steer{}
+        #pass  # Substitute with your code
+        # extend local planner up to 100 times
+        return x_steer
     
-    def search(self,{}x_start{},{}x_end{},{}goal_dist_threshold{}):
+    def search(self,x_start,x_end,goal_dist_threshold):
         """
         Implement a tree-based sampling search algorithm. The function performs
         the following steps:
@@ -69,19 +90,25 @@ class Rrt:
         backpointer), and then use Graph.path to return the path from   x_start
         to   x_end.
         """
-        pass  # Substitute with your code
-        return {}x_path{}
+        #pass  # Substitute with your code
+        return x_path
     
 def rrt_search_test():
     """
     
      - Loads the variables   world,   x_start and   x_end from the file
-    !70!DarkSeaGreen2 sphereWorld.mat.
+    sphereWorld.mat.
      - For each starting location (column) in   x_start, and each goal
     location (column) in   x_goal, calls Rrt.search to find a path.
      - Calls Sphereworld.plot and then overimposes all the trajectories from
     the start locations to the goal location.
     """
-    pass  # Substitute with your code
+    #pass  # Substitute with your code
+    # load variables from sphereWorld.mat
+    # for each starting location (column) in x_start to each goal location 
+        # (column) in x_goal:
+            # Call Rrt.search to find a path
+    # Call Sphereworld.plot and impose path trajectories from start to goal
+        # locations
     
 
