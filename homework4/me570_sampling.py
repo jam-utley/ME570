@@ -27,8 +27,16 @@ class Rrt:
         x_steer=x_sample.
         """
         #pass  # Substitute with your code
+        #Come back over this, this is NOT correct
+        # get point x_steer
+        movement_vector = self.x_goal - x_near
+        
         # if distance to goal < max_distm then x_steer = x_sample
+        if movement_vector < max_dist:
+            x_steer = x_sample
         # otherwise: x_steer = x_near + max_dist * (x_sample-x_near)/d
+        else:
+            x_steer = x_near + max_dist
         return x_steer
     
     def local_planner_is_collision(self,
